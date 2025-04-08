@@ -11,17 +11,17 @@ const (
 type (
 	SimpleCommand struct {
 		Type string
-		Body struct {
-			Parts []string
-		}
+		Body SimpleParts
+	}
+	SimpleParts struct {
+		Parts []string
 	}
 )
 
 func ParseSimple(input string) (command *SimpleCommand) {
 	return &SimpleCommand{
 		Type: CommandTypeSimple,
-		Body: struct{ Parts []string }{Parts: strings.Split(input, " ")},
-	}
+		Body: SimpleParts{Parts: strings.Split(input, " ")}}
 }
 
 func (s *SimpleCommand) String() string {
