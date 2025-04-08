@@ -1,25 +1,44 @@
 package main
 
-import "strings"
+import (
+	"strings"
+
+	"gopkg.in/yaml.v3"
+)
+
+const (
+	CommandTypeSimple = "simple"
+)
 
 type (
 	Command interface {
-		Parse(input string) error
 		String() string
 	}
 	CommandBatch struct {
-		Simple []*SimpleCommand
+		Commands []Command
+	}
+	RawBatch struct {
+		Commands []RawCommand
+	}
+	RawCommand struct {
+		Type string
+		Body yaml.Node
 	}
 	SimpleCommand struct {
-		Parts []string
+		Type string
+		Body struct {
+			Parts []string
+		}
 	}
 )
 
-func (s *SimpleCommand) Parse(input string) (err error) {
-	s.Parts = strings.Split(input, " ")
-	return nil
+func ParseSimple(input string) (command *SimpleCommand) {
+	return &SimpleCommand{
+		Type: CommandTypeSimple,
+		Body: struct{ Parts []string }{Parts: strings.Split(input, " ")},
+	}
 }
 
 func (s *SimpleCommand) String() string {
-	return strings.Join(s.Parts, " ")
+	return strings.Join(s.Body.Parts, " ")
 }
