@@ -31,5 +31,10 @@ func main() {
 	if batch, err = g.ParseYAML(output); err != nil {
 		log.Fatal(err)
 	}
+	//if err = g.Exec(batch); err != nil {
+	//	log.Fatal(err)
+	//}
 	_ = os.WriteFile("output.yaml", output, 0666)
+	text := g.FormatGoFile(batch)
+	_ = os.WriteFile("generate.go", []byte(text), 0666)
 }
