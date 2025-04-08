@@ -1,0 +1,187 @@
+commands:
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+        plugins:
+            - name: go
+              parameters:
+                - name: paths
+                  value: source_relative
+        files:
+            - proto/somepackage/somepackage.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+            - /usr/local/include
+            - ./proto
+        plugins:
+            - name: go
+              parameters:
+                - name: paths
+                  value: source_relative
+        files:
+            - proto/example.proto
+            - proto/example2.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+            - /usr/local/include
+            - ./proto
+        plugins:
+            - name: httpgo
+              parameters:
+                - name: paths
+                  value: source_relative
+                - name: marshaller
+                  value: easyjson
+        files:
+            - proto/example.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+            - /usr/local/include
+            - ./proto
+        plugins:
+            - name: httpgo
+              parameters:
+                - name: only
+                  value: client
+                - name: paths
+                  value: source_relative
+        files:
+            - proto/example2.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+            - /usr/local/include
+            - ./proto
+        plugins:
+            - name: httpgo
+              parameters:
+                - name: paths
+                  value: source_relative
+                - name: autoURI
+                  value: "true"
+        files:
+            - proto/no_url.proto
+    - type: simple
+      body:
+        parts:
+            - easyjson
+            - -all
+            - proto/example.pb.go
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+        plugins:
+            - name: go
+              parameters:
+                - name: paths
+                  value: source_relative
+            - name: go-grpc
+              parameters:
+                - name: paths
+                  value: source_relative
+            - name: validate
+              parameters:
+                - name: lang
+                  value: go
+                - name: paths
+                  value: source_relative
+        files:
+            - file.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+        plugins:
+            - name: openapi
+              parameters:
+                - name: output_mode
+                  value: source_relative
+            - name: httpgo
+              parameters:
+                - name: paths
+                  value: source_relative
+                - name: only
+                  value: server
+                - name: context
+                  value: native
+        files:
+            - file.proto
+    - type: protoc
+      body:
+        imports:
+            - .
+            - ./vendor
+        plugins:
+            - name: go
+              parameters:
+                - name: paths
+                  value: source_relative
+            - name: amqprpc4
+              parameters: []
+        files:
+            - file.proto
+    - type: simple
+      body:
+        parts:
+            - find
+            - proto/.
+            - -type
+            - f
+            - -name
+            - '"*.pb.go"'
+            - -exec
+            - sed
+            - --in-place
+            - s/,omitempty//
+            - '{}'
+            - ;
+    - type: simple
+      body:
+        parts:
+            - find
+            - proto/.
+            - -type
+            - f
+            - -name
+            - '"*.pb.go"'
+            - -exec
+            - easyjson
+            - -all
+            - '{}'
+            - ;
+    - type: simple
+      body:
+        parts:
+            - gofmt
+            - -w
+            - ./proto/
+    - type: simple
+      body:
+        parts:
+            - mockgen
+            - -package=mocks
+            - -destination=internal/pkg/database/mock/pid_mock.go
+            - -source=internal/pkg/database/pid.go
+    - type: simple
+      body:
+        parts:
+            - mockgen
+            - -package=mocks
+            - -destination=internal/pkg/database/mock/tx_mock.go
+            - -source=internal/pkg/database/tx.go
