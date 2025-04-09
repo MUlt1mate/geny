@@ -11,6 +11,7 @@ type testCaseSimple struct {
 	name            string
 	rawCommand      string
 	expectedCommand SimpleParts
+	stringCommand   string
 }
 
 func TestSimpleCommand(t *testing.T) {
@@ -18,17 +19,26 @@ func TestSimpleCommand(t *testing.T) {
 		{
 			name:            "empty",
 			rawCommand:      "",
-			expectedCommand: SimpleParts{Parts: []string{""}},
+			expectedCommand: SimpleParts{Parts: []string{}},
+			stringCommand:   "",
 		},
 		{
 			name:            "short",
 			rawCommand:      "ls",
 			expectedCommand: SimpleParts{Parts: []string{"ls"}},
+			stringCommand:   "ls",
 		},
 		{
 			name:            "3 parts",
 			rawCommand:      "gofmt -w ./proto/",
 			expectedCommand: SimpleParts{Parts: []string{"gofmt", "-w", "./proto/"}},
+			stringCommand:   "gofmt -w ./proto/",
+		},
+		{
+			name:            "empty spaces",
+			rawCommand:      "  gofmt -w  ./proto/	 ",
+			expectedCommand: SimpleParts{Parts: []string{"gofmt", "-w", "./proto/"}},
+			stringCommand:   "gofmt -w ./proto/",
 		},
 	}
 
@@ -38,7 +48,7 @@ func TestSimpleCommand(t *testing.T) {
 			if !cmp.Equal(resultCommand.Body, testCase.expectedCommand) {
 				t.Errorf("compare failed: %v", deep.Equal(resultCommand.Body, testCase.expectedCommand))
 			}
-			if resultCommand.String() != testCase.rawCommand {
+			if resultCommand.String() != testCase.stringCommand {
 				t.Errorf("expected %s, got %s", testCase.rawCommand, resultCommand.String())
 			}
 		})

@@ -42,6 +42,7 @@ func ParseProtoc(input string) (command *ProtocCommand, err error) {
 		pluginIndex = make(map[string]int)
 	)
 	for _, part := range parts {
+		part = strings.TrimSpace(part)
 		switch {
 		case strings.HasPrefix(part, "-I="),
 			strings.HasPrefix(part, "-IPATH="),

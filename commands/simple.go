@@ -19,9 +19,18 @@ type (
 )
 
 func ParseSimple(input string) (command *SimpleCommand) {
-	return &SimpleCommand{
+	parts := strings.Split(input, " ")
+	s := &SimpleCommand{
 		Type: CommandTypeSimple,
-		Body: SimpleParts{Parts: strings.Split(input, " ")}}
+		Body: SimpleParts{Parts: make([]string, 0, len(parts))},
+	}
+	for _, part := range parts {
+		if strings.TrimSpace(part) == "" {
+			continue
+		}
+		s.Body.Parts = append(s.Body.Parts, strings.TrimSpace(part))
+	}
+	return s
 }
 
 func (s *SimpleCommand) String() string {
