@@ -108,10 +108,15 @@ func (g *Geny) FormatGoFile(batch *CommandBatch, packageName string, showGenComm
 }
 
 func (g *Geny) Exec(batch *CommandBatch) (err error) {
+	var output []byte
 	for _, command := range batch.Commands {
-		cmd := exec.Command(command.String())
-		if err = cmd.Run(); err != nil {
+		commandStr := command.String()
+		parts := strings.Split(commandStr, " ")
+		if output, err = exec.Command(parts[0], parts[1:]...).Output(); err != nil {
 			return err
+		}
+		if len(output) > 0 {
+			fmt.Println(string(output))
 		}
 	}
 	return nil
