@@ -46,6 +46,7 @@ func TestProtocCommand(t *testing.T) {
 							{Name: "paths", Value: "source_relative"},
 							{Name: "marshaller", Value: "easyjson"},
 						},
+						Path: ".",
 					},
 				},
 				Files: []string{"proto/example.proto", "proto/example2.proto"},
@@ -65,11 +66,52 @@ func TestProtocCommand(t *testing.T) {
 							{Name: "paths", Value: "source_relative"},
 							{Name: "marshaller", Value: "easyjson"},
 						},
+						Path: ".",
 					},
 				},
 				Files: []string{"proto/example.proto", "proto/example2.proto"},
 			},
 			stringCommand: "protoc -I=. -I=./vendor --httpgo_out=paths=source_relative,marshaller=easyjson:. proto/example.proto proto/example2.proto",
+		},
+		{
+			name:          "with path",
+			rawCommand:    "protoc -I=. -I=./vendor --httpgo_out=path1 --httpgo_opt=paths=source_relative,marshaller=easyjson proto/example.proto proto/example2.proto",
+			expectedError: nil,
+			expectedCommand: ProtocBody{
+				Imports: []string{".", "./vendor"},
+				Plugins: []ProtocPlugin{
+					{
+						Name: "httpgo",
+						Parameters: []ProtocPluginKV{
+							{Name: "paths", Value: "source_relative"},
+							{Name: "marshaller", Value: "easyjson"},
+						},
+						Path: "path1",
+					},
+				},
+				Files: []string{"proto/example.proto", "proto/example2.proto"},
+			},
+			stringCommand: "protoc -I=. -I=./vendor --httpgo_out=paths=source_relative,marshaller=easyjson:path1 proto/example.proto proto/example2.proto",
+		},
+		{
+			name:          "with path with opts",
+			rawCommand:    "protoc -I=. -I=./vendor --httpgo_out=paths=source_relative:path1 --httpgo_opt=marshaller=easyjson proto/example.proto proto/example2.proto",
+			expectedError: nil,
+			expectedCommand: ProtocBody{
+				Imports: []string{".", "./vendor"},
+				Plugins: []ProtocPlugin{
+					{
+						Name: "httpgo",
+						Parameters: []ProtocPluginKV{
+							{Name: "paths", Value: "source_relative"},
+							{Name: "marshaller", Value: "easyjson"},
+						},
+						Path: "path1",
+					},
+				},
+				Files: []string{"proto/example.proto", "proto/example2.proto"},
+			},
+			stringCommand: "protoc -I=. -I=./vendor --httpgo_out=paths=source_relative,marshaller=easyjson:path1 proto/example.proto proto/example2.proto",
 		},
 	}
 	for _, testCase := range testCases {

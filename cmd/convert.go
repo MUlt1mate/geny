@@ -31,6 +31,7 @@ func convert(_ *cobra.Command, _ []string) (err error) {
 			return err
 		}
 		fmt.Println(string(output))
+		return
 	}
 	return saveBatch(batch, runFlags.Output)
 }

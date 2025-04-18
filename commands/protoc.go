@@ -25,6 +25,7 @@ type (
 
 	ProtocPlugin struct {
 		Name       string
+		Path       string
 		Parameters []ProtocPluginKV
 	}
 	ProtocPluginKV struct {
@@ -61,6 +62,9 @@ func ParseProtoc(input string) (command *ProtocCommand, err error) {
 			}
 			if index, ok := pluginIndex[plugin.Name]; ok {
 				command.Body.Plugins[index].Parameters = append(command.Body.Plugins[index].Parameters, plugin.Parameters...)
+				if plugin.Path != "" {
+					command.Body.Plugins[index].Path = plugin.Path
+				}
 			} else {
 				command.Body.Plugins = append(command.Body.Plugins, *plugin)
 				pluginIndex[plugin.Name] = len(command.Body.Plugins) - 1
@@ -85,14 +89,19 @@ func parseProtocPluginArg(part string) (*ProtocPlugin, error) {
 	if len(parametersParts) > 2 {
 		return nil, fmt.Errorf("geny: unknown protoc plugin parameter format: %s", part)
 	}
-	if len(parametersParts) == 2 {
-		if parametersParts[1] != "." {
-			return nil, fmt.Errorf("geny: unknown protoc plugin parameter format: %s", part)
+	if matches[2] == "out" {
+		if len(parametersParts) == 2 {
+			plugin.Path = parametersParts[1]
+		} else {
+			plugin.Path = parametersParts[0]
 		}
+	}
+	if matches[2] != "opt" && len(parametersParts) == 1 {
+		return plugin, nil
 	}
 	pluginParameters := strings.Split(parametersParts[0], ",")
 	for _, pluginParameter := range pluginParameters {
-		if pluginParameter == "" || pluginParameter == "." {
+		if pluginParameter == "" {
 			continue
 		}
 		pluginParametersKV := strings.Split(pluginParameter, "=")
@@ -114,11 +123,11 @@ func (s *ProtocCommand) String() string {
 		for _, kv := range plugin.Parameters {
 			pluginParameters = append(pluginParameters, kv.Name+"="+kv.Value)
 		}
-		outPart := "."
+		outValue := plugin.Path
 		if len(pluginParameters) > 0 {
-			outPart = strings.Join(pluginParameters, ",") + ":."
+			outValue = strings.Join(pluginParameters, ",") + ":" + plugin.Path
 		}
-		parts = append(parts, fmt.Sprintf("--%s_out=%s", plugin.Name, outPart))
+		parts = append(parts, fmt.Sprintf("--%s_out=%s", plugin.Name, outValue))
 	}
 	for _, file := range s.Body.Files {
 		parts = append(parts, file)

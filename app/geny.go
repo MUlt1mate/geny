@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -108,15 +110,15 @@ func (g *Geny) FormatGoFile(batch *CommandBatch, packageName string, showGenComm
 }
 
 func (g *Geny) Exec(batch *CommandBatch) (err error) {
-	var output []byte
 	for _, command := range batch.Commands {
 		commandStr := command.String()
+		log.Println(commandStr)
 		parts := strings.Split(commandStr, " ")
-		if output, err = exec.Command(parts[0], parts[1:]...).Output(); err != nil {
+		cmd := exec.Command(parts[0], parts[1:]...)
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		if err = cmd.Run(); err != nil {
 			return err
-		}
-		if len(output) > 0 {
-			fmt.Println(string(output))
 		}
 	}
 	return nil
